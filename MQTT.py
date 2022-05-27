@@ -165,6 +165,7 @@ class MqttSap(MQTTSAP.PahoMQTT):
         client = self.connect()
         client.loop_start()
         self.publish(client,capAltId,sensorAltId,measure,timestamp,simulateDelay,False)
+        client.loop_stop()
 
 
 

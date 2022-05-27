@@ -7,15 +7,13 @@ from utils import Utils
 
 if __name__ == '__main__':
 
-    #mainScr = Screen().start()
+    mainScr = Screen().start()
 
-    conn = MqttSap("62AF49DA78D94E18BDE93A64ED17DB28",
-                   "./certificates/certificate_real.pem",
-                   "!S3?OhPerZMy4I3IzN0tu?u3WwFkWEHVGvch")
+    #conn = MqttSap("62AF49DA78D94E18BDE93A64ED17DB28",
+    #               "./certificates/certificate_real.pem",
+    #               "!S3?OhPerZMy4I3IzN0tu?u3WwFkWEHVGvch")
 
-    #Utils.loadData("C:\\Users\\erick.simas.grilo\\OneDrive - Accenture\\SAP PM\\Iniciativa IAM\\Template_migration_IAM.xlsx")
-
-    conn.runMQTT("[BRA] Air conditioning","BRA_Air_conditioning",[[random.randint(1,60)]],None,True,True)
+    #conn.runMQTT("[BRA] Air conditioning","BRA_Air_conditioning",[[random.randint(1,60)]],None,True,True)
 
     #test.run()
 

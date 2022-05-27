@@ -26,16 +26,19 @@ class Utils():
         Parameters:
             filePath: str -> Excel file directory containing the data
         """
-        excelData = Utils.readExcelFile(filePath)
-        for index, row in excelData.iterrows():
-            conn = MqttSap(clientID=row["device_alternate_id"],
-                           certificateFile=row["PEM_file_directory"],
-                           secret=row["secret"])
-            conn.sendSingleData(capAltId=row["capability_alternate_id"],
-                                sensorAltId=row["sensor_alternate_id"],
-                                measure=[[row["measures"]]],
-                                timestamp=row["timestamp"],simulateDelay=False)
-            conn.disconnect()
+        try:
+            excelData = Utils.readExcelFile(filePath)
+            for index, row in excelData.iterrows():
+                conn = MqttSap(clientID=row["device_alternate_id"],
+                               certificateFile=row["PEM_file_directory"],
+                               secret=row["secret"])
+                conn.sendSingleData(capAltId=row["capability_alternate_id"],
+                                    sensorAltId=row["sensor_alternate_id"],
+                                    measure=[[row["measures"]]],
+                                    timestamp=row["timestamp"],simulateDelay=False)
+                conn.disconnect()
+        except (FileNotFoundError):
+            return -1
 
 
 
