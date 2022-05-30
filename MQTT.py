@@ -11,7 +11,6 @@ class MqttSap(MQTTSAP.PahoMQTT):
     def __init__(self,clientID,certificateFile,secret):
 
         super(MqttSap,self).__init__(client_id=clientID)
-
         self.serverURL = '29cf1730-34da-4b38-9edd-30be889be55f.eu10.cp.iot.sap'
         self.port = 8883
         self.clientID = clientID

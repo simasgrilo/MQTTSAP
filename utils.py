@@ -39,6 +39,7 @@ class Utils():
                 conn.disconnect()
         except (FileNotFoundError):
             return -1
+        return 0
 
 
 
