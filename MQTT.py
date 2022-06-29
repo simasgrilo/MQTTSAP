@@ -1,6 +1,6 @@
 
 import paho.mqtt.client as mqttClient
-import iot_services_sdk.mqtt_client as MQTTSAP
+import mqtt_client as MQTTSAP
 import ssl
 import random
 import time
@@ -103,9 +103,11 @@ class MqttSap(MQTTSAP.PahoMQTT):
             client.tls_set(pemfile=self.certificateFile,secret=self.secret)
         except ValueError:
             print("TLS already set for this connection")
+        except FileNotFoundError:
+            raise ValueError("Insert a valid .pem file")
         client.connect()
         client.message_callback_add(self.topicSubscribe, self.onMessage)
-        #client.subscribe(device_alternate_id=self.clientID)
+        client.subscribe(device_alternate_id=self.clientID)
 
         return client
 
@@ -123,14 +125,35 @@ class MqttSap(MQTTSAP.PahoMQTT):
         self.message_callback_add(measures, self._command_message_handler)
         return mqttClient.Client.subscribe(measures, 1)
 
-    def publish(self,client,capAltId,sensorAltId,measure,timestamp,simulateDelay,simulateValues):
+    def processMeasures(self,measures):
+        """Process measures to deal with multiple measures as defined in SAP standards:
+        :param measures : str -> a string containing comma-separated measures"""
+        measures = measures[0].split(";")
+        resultingJSON = {}
+        for measure in measures:
+            measure = measure.strip(" {}").split(":")
+            measure[0] = measure[0].strip(" ")
+            resultingJSON[measure[0]] = float(measure[1])
+        return resultingJSON
+
+    def processMeasuresNoName(self,measures):
+        """Process measures to deal with multiple measures as defined in SAP standards:
+        :param measures : str -> a string containing comma-separated measures"""
+        measures = measures[0].split(";")
+        resultingJSON = []
+        for measure in measures:
+            resultingJSON.append(float(measure.strip(" [").strip("]")))
+        return resultingJSON
+
+    def publish(self,client,capAltId,sensorAltId,measure,timestamp,simulateDelay,simulateValues,textEdit):
         #while True:
         if simulateDelay:
             time.sleep(1)
         message = {
             "capability_alternate_id" : capAltId,
             "sensor_alternate_id" : sensorAltId,
-            "measures": measure
+            #"measures": [self.processMeasuresNoName(measures=measure)]
+            "measures": [self.processMeasures(measures=measure)]
         }
         if simulateValues:
             message["measures"] = [[random.randint(1,60)]]
@@ -139,10 +162,12 @@ class MqttSap(MQTTSAP.PahoMQTT):
                                 measures=message["measures"],
                                 timestamp=timestamp)
         status = result[0]
-        if status == 0:
+        if not status:
             print(f"Send "+ str(message["measures"]) + f" to topic `{self.topic}`")
+            textEdit.append(f"Send "+ str(message["measures"]) + f" to topic `{self.topic}`")
         else:
             print(f"Failed to send message to topic {self.topic}")
+            textEdit.append(f"Failed to send message to topic {self.topic}")
 
     def runMQTT(self,capAltId,sensorAltId,measure,timestamp,simulateDelay,simulateValues):
         """Executes the simulation of an IoT device feeding SAP with data in a "forever" fashion.
@@ -158,12 +183,12 @@ class MqttSap(MQTTSAP.PahoMQTT):
         while True:
             self.publish(client,capAltId,sensorAltId,measure,timestamp,simulateDelay,simulateValues)
 
-    def sendSingleData(self,capAltId,sensorAltId,measure,timestamp,simulateDelay):
+    def sendSingleData(self,capAltId,sensorAltId,measure,timestamp,simulateDelay, textEdit):
         """Sends a single piece of data to SAP Broker. This method will be used when loading
         measurement data from an excel file, which will send each value at a time"""
         client = self.connect()
         client.loop_start()
-        self.publish(client,capAltId,sensorAltId,measure,timestamp,simulateDelay,False)
+        self.publish(client,capAltId,sensorAltId,measure,timestamp,simulateDelay,False,textEdit)
         client.loop_stop()
 
 

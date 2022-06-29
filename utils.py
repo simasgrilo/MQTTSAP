@@ -1,5 +1,6 @@
 import pandas
 from MQTT import MqttSap
+import PyQt5
 
 
 class Utils():
@@ -18,7 +19,7 @@ class Utils():
         return pandas.read_excel(filePath,header=2)
 
     @staticmethod
-    def loadData(filePath: str):
+    def loadData(filePath: str, textEdit: PyQt5.QtWidgets):
         """
         Loads measurement data from Excel file, in the format denoted by the template in file Template_migration_IAM.xlsx in
         the project's repository.
@@ -34,10 +35,13 @@ class Utils():
                                secret=row["secret"])
                 conn.sendSingleData(capAltId=row["capability_alternate_id"],
                                     sensorAltId=row["sensor_alternate_id"],
-                                    measure=[[row["measures"]]],
-                                    timestamp=row["timestamp"],simulateDelay=False)
+                                    #measure=[[row["measures"]]],
+                                    measure=[row["measures"]],
+                                    timestamp=row["timestamp"],simulateDelay=False, textEdit=textEdit)
                 conn.disconnect()
         except (FileNotFoundError):
+            import traceback
+            traceback.print_exc()
             return -1
         return 0
 
