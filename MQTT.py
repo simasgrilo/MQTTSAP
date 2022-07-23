@@ -125,7 +125,7 @@ class MqttSap(MQTTSAP.PahoMQTT):
         self.message_callback_add(measures, self._command_message_handler)
         return mqttClient.Client.subscribe(measures, 1)
 
-    def processMeasures(self,measures):
+    def processMeasures(self,measures) -> dict:
         """Process measures to deal with multiple measures as defined in SAP standards:
         :param measures : str -> a string containing comma-separated measures"""
         measures = measures[0].split(";")
@@ -138,7 +138,7 @@ class MqttSap(MQTTSAP.PahoMQTT):
 
     def processMeasuresNoName(self,measures):
         """Process measures to deal with multiple measures as defined in SAP standards:
-        :param measures : str -> a string containing comma-separated measures"""
+        :param measures : str -> a string containing comma-separated measures in array of arrays-style"""
         measures = measures[0].split(";")
         resultingJSON = []
         for measure in measures:

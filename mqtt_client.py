@@ -190,7 +190,7 @@ class MQTTClient(PahoMQTT):
         }
 
         if timestamp is not None:
-            payload['timestamp'] = timestamp
+            payload['timestamp'] = int(timestamp)
         self._message_buffer[measure_message_id] = payload
         payload_json = json.dumps(payload)
         return super(MQTTClient, self).publish(service, payload=payload_json)
